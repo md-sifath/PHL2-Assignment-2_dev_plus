@@ -1,6 +1,7 @@
 import type { IIssue } from "./issues-interface";
 import { pool } from "../../db";
 import type { JwtPayload } from "jsonwebtoken";
+import type { NodeRuntime } from "node:inspector/promises";
 
 const createIssueIntoDB = async (payload: IIssue, reporterId: number) => {
   const { title, description, type } = payload;
@@ -93,9 +94,35 @@ const updateIssueIntoDB = async (
   return updateResult.rows[0];
 };
 
+const deleteIssueFromDB = async (issueId: number, userRole: string) => {
+  if (userRole === "contributor") {
+    throw new Error("Forbidden!");
+  }
+
+  const issueResult = await pool.query(
+    `
+    SELECT * FROM issues WHERE id = $1
+    `,
+    [issueId],
+  );
+
+  if (!issueResult.rows[0]) {
+    throw new Error("No Issue Found");
+  }
+
+  await pool.query(
+    `
+        DELETE FROM issues WHERE id = $1
+        `,
+    [issueId],
+  );
+  return true;
+};
+
 export const issueService = {
   createIssueIntoDB,
   getIssuesFromDB,
   getSingleIssueFromDB,
   updateIssueIntoDB,
+  deleteIssueFromDB,
 };
