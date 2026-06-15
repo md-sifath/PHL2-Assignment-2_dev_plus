@@ -1,6 +1,12 @@
 import type { Request, Response } from "express";
 import { issueService } from "./issues-service";
 import type { JwtPayload } from "jsonwebtoken";
+import type {
+  IIssueQuery,
+  SortType,
+  StatusType,
+  IssueType,
+} from "./issues-interface";
 
 const createIssue = async (req: Request, res: Response) => {
   try {
@@ -24,9 +30,21 @@ const createIssue = async (req: Request, res: Response) => {
 
 const getAllIssues = async (req: Request, res: Response) => {
   try {
-    const result = await issueService.getIssuesFromDB();
+    const queryParams: IIssueQuery = {
+      sort: req.query.sort as SortType,
+      status: req.query.status as StatusType,
+      type: req.query.type as IssueType,
+    };
+    const result = await issueService.getAllIssuesFromDB(queryParams);
+    res.status(200).json({
+      success: true,
+      message: "Issues retrived successfully",
+      data: result,
+    });
   } catch (error: any) {
-    message: error.message;
+    res.status(500).json({
+      message: error.message,
+    });
   }
 };
 
