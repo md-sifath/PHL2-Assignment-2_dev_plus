@@ -1,5 +1,6 @@
 import type { Request, Response } from "express";
 import { issueService } from "./issues-service";
+import type { JwtPayload } from "jsonwebtoken";
 
 const createIssue = async (req: Request, res: Response) => {
   try {
@@ -49,8 +50,32 @@ const getSingleIssue = async (req: Request, res: Response) => {
   }
 };
 
+const updateIssue = async (req: Request, res: Response) => {
+  try {
+    const issueId = Number(req.params.id);
+
+    const result = await issueService.updateIssueIntoDB(
+      req.body,
+      issueId,
+      req.user as JwtPayload,
+    );
+
+    res.status(200).json({
+      success: true,
+      message: "Issue updated successfully",
+      data: result,
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      succes: false,
+      message: error.message,
+    });
+  }
+};
+
 export const issueController = {
   createIssue,
   getAllIssues,
   getSingleIssue,
+  updateIssue,
 };

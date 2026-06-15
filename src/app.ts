@@ -1,7 +1,7 @@
 import express, { type Application } from "express";
 import { authRoute } from "./modules/auth/auth-route";
 import { issuesRoute } from "./modules/issues/issues-route";
-import auth from "./middleware/create-issues";
+import auth from "./middleware/auth";
 
 const app: Application = express();
 
